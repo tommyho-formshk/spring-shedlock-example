@@ -8,3 +8,10 @@
 
 == Result
 https://www.youtube.com/watch?v=SGEidoiZJ9A
+
+
+== Run
+[source]
+----
+./gradlew bootRun --args='--spring.profiles.active=<current profile>'
+----
