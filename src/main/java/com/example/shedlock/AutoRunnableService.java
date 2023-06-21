@@ -46,19 +46,17 @@ public class AutoRunnableService {
                 )
         );
 
-        // need to lock queryUnprocessed
         executor.scheduleWithFixedDelay(
                 () -> {
-                    LockingTaskExecutor executor = new DefaultLockingTaskExecutor(lockProvider);
-                    executor.executeWithLock(queryUnprocessed, new LockConfiguration(
+                    LockingTaskExecutor lockingTaskExecutor = new DefaultLockingTaskExecutor(lockProvider);
+                    lockingTaskExecutor.executeWithLock(queryUnprocessed, new LockConfiguration(
                             Instant.now(),
                             "unprocessed",
                             Duration.ofSeconds(30L),
                             Duration.ofSeconds(3L)
                             )
                     );
-                }
-                ,
+                },
                 queryUnprocessedDelay / 10,
                 queryUnprocessedDelay,
                 TimeUnit.MILLISECONDS
