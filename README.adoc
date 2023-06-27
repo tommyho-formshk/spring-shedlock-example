@@ -48,7 +48,7 @@ public class ShedlockApplication {
 }
 ----
 
-Scheduled task 
+Scheduled task +
 Add @SchedulerLock in the scheduled method
 [source, java]
 ----
@@ -59,7 +59,7 @@ public void cronJob() throws InterruptedException {
 }
 ----
 
-AutoRunnable task
+AutoRunnable task +
 Locking task executor allows you to use shedlock without spring framework (non-annotation style)
 [source, java]
 ----
