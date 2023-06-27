@@ -17,15 +17,14 @@ https://www.youtube.com/watch?v=SGEidoiZJ9A
 ----
 
 == Steps
-1. Create a lock table in postgres, can be done using flyway or liquidbase
+Create a lock table in postgres, can be done using flyway or liquidbase
 [source, sql]
 ----
 # Postgres
 CREATE TABLE shedlock(name VARCHAR(64) NOT NULL, lock_until TIMESTAMP NOT NULL,
     locked_at TIMESTAMP NOT NULL, locked_by VARCHAR(255) NOT NULL, PRIMARY KEY (name));
 ----
-
-2. import related dependencies
+Import related dependencies
 in build.gradle:
 [source]
 ----
@@ -33,7 +32,7 @@ implementation 'net.javacrumbs.shedlock:shedlock-spring:4.44.0'
 implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.44.0'
 ----
 
-3. add required annotations in main class
+Add required annotations in main class
 [source, java]
 ----
 @EnableScheduling
@@ -49,7 +48,7 @@ public class ShedlockApplication {
 }
 ----
 
-4. Scheduled task 
+Scheduled task 
 Add @SchedulerLock in the scheduled method
 ----
 @Scheduled(cron = "*/10 * * * * *") //Every 10 seconds
@@ -59,7 +58,7 @@ public void cronJob() throws InterruptedException {
 }
 ----
 
-5. AutoRunnable task
+AutoRunnable task
 Locking task executor allows you to use shedlock without spring framework (non-annotation style)
 ----
 executor = Executors.newScheduledThreadPool(8,
@@ -84,6 +83,3 @@ executor.scheduleWithFixedDelay(
         TimeUnit.MILLISECONDS
 );
 ----
-
-
-
