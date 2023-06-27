@@ -16,11 +16,74 @@ https://www.youtube.com/watch?v=SGEidoiZJ9A
 ./gradlew bootRun --args='--spring.profiles.active=<current profile>'
 ----
 
-== SQL 
-Need to create a lock table in Postgres
+== Steps
+1. Create a lock table in postgres, can be done using flyway or liquidbase
 [source, sql]
 ----
 # Postgres
 CREATE TABLE shedlock(name VARCHAR(64) NOT NULL, lock_until TIMESTAMP NOT NULL,
     locked_at TIMESTAMP NOT NULL, locked_by VARCHAR(255) NOT NULL, PRIMARY KEY (name));
 ----
+
+2. import related dependencies
+in build.gradle:
+[source]
+----
+implementation 'net.javacrumbs.shedlock:shedlock-spring:4.44.0'
+implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.44.0'
+----
+
+3. add required annotations in main class
+[source, java]
+----
+@EnableScheduling
+// for scheduled task, at least 4-5 times or task running time
+// for autoRunnable task, around 10 times to the intervals
+@EnableSchedulerLock(defaultLockAtMostFor = "PT30S") 
+public class ShedlockApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ShedlockApplication.class, args);
+	}
+
+}
+----
+
+4. Scheduled task 
+Add @SchedulerLock in the scheduled method
+----
+@Scheduled(cron = "*/10 * * * * *") //Every 10 seconds
+@SchedulerLock(name = "cronJob", lockAtLeastFor = "PT7S", lockAtMostFor = "PT30S")
+public void cronJob() throws InterruptedException {
+    log.info("Start cron job on port: {}", serverPort);
+}
+----
+
+5. AutoRunnable task
+Locking task executor allows you to use shedlock without spring framework (non-annotation style)
+----
+executor = Executors.newScheduledThreadPool(8,
+        new CustomizableThreadFactory(
+                CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, "autoRunning" + "-")
+        )
+);
+
+executor.scheduleWithFixedDelay(
+        () -> {
+            LockingTaskExecutor lockingTaskExecutor = new DefaultLockingTaskExecutor(lockProvider);
+            lockingTaskExecutor.executeWithLock(queryUnprocessed, new LockConfiguration(
+                    Instant.now(),
+                    "unprocessed",
+                    Duration.ofSeconds(30L), // lockAtMostFor
+                    Duration.ofSeconds(3L) // lockAtLeastFor
+                )
+            );
+        },
+        queryUnprocessedDelay / 10,
+        queryUnprocessedDelay,
+        TimeUnit.MILLISECONDS
+);
+----
+
+
+
