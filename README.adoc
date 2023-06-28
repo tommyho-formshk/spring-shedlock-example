@@ -17,14 +17,14 @@ https://www.youtube.com/watch?v=SGEidoiZJ9A
 ----
 
 == Steps
-Create a lock table in postgres, can be done using flyway or liquidbase
+{counter:list-counter}. Create a lock table in postgres, can be done using flyway or liquidbase
 [source, sql]
 ----
 # Postgres
 CREATE TABLE shedlock(name VARCHAR(64) NOT NULL, lock_until TIMESTAMP NOT NULL,
     locked_at TIMESTAMP NOT NULL, locked_by VARCHAR(255) NOT NULL, PRIMARY KEY (name));
 ----
-Import related dependencies
+{counter:list-counter}. Import related dependencies
 in build.gradle:
 [source, gradle]
 ----
@@ -32,7 +32,7 @@ implementation 'net.javacrumbs.shedlock:shedlock-spring:4.44.0'
 implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.44.0'
 ----
 
-Add required annotations in main class
+{counter:list-counter}. Add required annotations in main class
 [source, java]
 ----
 @EnableScheduling
@@ -48,7 +48,7 @@ public class ShedlockApplication {
 }
 ----
 
-Scheduled task +
+{counter:list-counter}. Scheduled task +
 Add @SchedulerLock in the scheduled method
 [source, java]
 ----
@@ -59,7 +59,7 @@ public void cronJob() throws InterruptedException {
 }
 ----
 
-AutoRunnable task +
+{counter:list-counter}. AutoRunnable task +
 Locking task executor allows you to use shedlock without spring framework (non-annotation style)
 [source, java]
 ----
